@@ -5,6 +5,9 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from optparse import OptionParser
 import requests
 import gzip
+import json
+import math
+
 
 class RequestHandler(BaseHTTPRequestHandler):
     
@@ -16,32 +19,72 @@ class RequestHandler(BaseHTTPRequestHandler):
         print("Request path:", request_path)
         print("Request headers:", self.headers)
         print("<----- Request End -----\n")
-
-
         print("sent query to DB")
         
-##        r = requests.get("http://localhost:8086/query?db=test3&q=\
-##SELECT \"degrees\" \
-##FROM \"h2o_temperature\" \
-##WHERE time >= 1546329600000ms and time <= 1546329620000ms%0A&epoch=ms")
         influx_url = "http://localhost:8086"+request_path
-        r = requests.get(influx_url)
-        print("----received data")
 
+##        influx_url = "http://localhost:8086/query?db=test&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329620000ms"
+        
+        print("----received data END")
+        r = requests.get(influx_url)
+
+        ## COUNT THE DATA
+        q = request_path.split('+')
+        q[1] = ('count%28%2A%29')
+        count = '+'.join(q)
+        count_url = "http://localhost:8086"+count
+        count_query = requests.get(count_url)
+        jdict = json.loads(count_query.content)
+        count = jdict["results"][0]["series"][0]["values"][0][1]
+        print("COUNT", jdict["results"][0]["series"][0]["values"][0][1])
+
+        print("----received data")
+        print("r.header")
         print(r.headers)
         print()
-        print(r.content)
+##        print("r.content")
+##        print(r.content)
+##       
         print()
-        print("----received data END")
-
+        json_dict = json.loads(r.content)
+        print("####################")
+        #print("data")
+        #print(json_dict["results"][0]["series"][0]["values"])
+        
+        data = json_dict["results"][0]["series"][0]["values"]
+        
 
         self.send_response(200)
         for key, value in r.headers.items():
             self.send_header(key,value)
         self.end_headers()
-        res = r.content
-        gres = gzip.compress(res)
+        
+        if count <= 100:
+            res = r.content
+            gres = gzip.compress(res)
+ 
+        else:
+            batchsize = math.floor(count/100)
+            newlist = []
+            for i in range(0,len(data),batchsize):
+                newlist.append(data[i])
+
+            print("SIZE OF THE NEW LIST ",len(newlist))
+
+            json_dict["results"][0]["series"][0]["values"] = newlist
+
+            string_dict = json.dumps(json_dict)
+            byte_dict = string_dict.encode()
+                
+            gres = gzip.compress(byte_dict)
+
         self.wfile.write(gres)
+            
+                
+                
+            
+        print("----received data END")
+
 
         
     def do_POST(self):
