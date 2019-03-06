@@ -7,12 +7,34 @@ class QueryInfo:
         self.qs = query
         self.qlist = query.lower().split()
         self.time_range = [0,0]
+        self.se = []
+        self.wh = []
+        self.fr = []
+        self.gb = []
 
     def _parse(self):
 ##        i = 0
 ##        qlist_len = len(qlist)
 ##        while(i < qlist_len):
-##            if qlist[i] == '
+##            if qlist[i] == "select":
+##                i++
+##                while(qlist[i] != "from"):
+##                    self.se.append(qlist[i])
+##                    i++
+##            if qlist[i] == "from":
+##                i++
+##                while(qlist[i] != "where"):
+##                    self.fr.append(qlist[i])
+##                    i++
+##            if qlist[i] == "where":
+##                i++
+##                while(qlist[i] != "GROUP" and i < qlist_len):
+##                    self.wh.applend(qlist[i])
+##                    i++
+##                    
+##
+##
+##            i++
 
         
         if 'select' in self.query:
@@ -33,9 +55,10 @@ class QueryInfo:
 
     def get_time_range(self):
         i = self.qlist.index('>=')
-        self.time_range[0] = self.qlist[i+1]
+        time_str = self.qlist[i+1]
+        self.time_range[0] = int(time_str[:len(time_str)-2])
         i = self.qlist.index('<=')
-        self.time_range[1] = self.qlist[i+1]
+        self.time_range[1] = int(time_str[:len(time_str)-2])
 
         return self.time_range
 
