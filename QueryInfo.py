@@ -12,47 +12,36 @@ class QueryInfo:
         self.fr = []
         self.gb = []
         self.other_info = []
+##        self._parse()
 
     def _parse(self):
-##        i = 0
-##        qlist_len = len(qlist)
-##        if qlist[i] == "select":
-##            i++
-##            while(qlist[i] != "from"):
-##                self.se.append(qlist[i])
-##                i++
-##        if qlist[i] == "from":
-##            i++
-##            while(qlist[i] != "where"):
-##                self.fr.append(qlist[i])
-##                i++
-##        if qlist[i] == "where":
-##            i++
-##            while(qlist[i] != "GROUP" and i < qlist_len):
-##                self.wh.applend(qlist[i])
-##                i++
-##        if qlist[i] == "GROUP":
-##            i += 2 # group by
-##            while
-##            self.gb.append(qlist[i])
+        print(self.qlist)
+        i = 0
+        qlist_len = len(self.qlist)
+        if self.qlist[i] == "select":
+            i+=1
+            while(self.qlist[i] != "from"):
+                self.se.append(self.qlist[i])
+                i+=1
+            print(self.se)
+        if self.qlist[i] == "from":
+            i+=1
+            while(self.qlist[i] != "where"):
+                self.fr.append(self.qlist[i])
+                i+=1
+            print(self.fr)
+        if self.qlist[i] == "where":
+            i+=1
+            print(i)
+            while(self.qlist[i] != "GROUP" and i < qlist_len):
+                self.wh.append(self.qlist[i])
+                i+=1
+            print(self.wh)
+        if self.qlist[i] == "GROUP":
+            i += 2 # group by
+            while(i < qlist_len):
+                self.gb.append(self.qlist[i])
         
-
-        
-        if 'select' in self.query:
-            select_exist = True
-            select_index = self.query.index('select')
-
-        if 'from' in self.query:
-            select_exist = True
-            from_index = self.query.index('from')
-
-        if 'where' in self.query:
-            select_exist = True
-            where_index = self.query.index('where')
-
-        if 'by' in self.query:
-            select_exist = True
-            gb_index = self.qeury.index('by')
 
     def get_time_range(self):
         i = self.qlist.index('>=')
@@ -65,8 +54,17 @@ class QueryInfo:
         return self.time_range
 
     def add_group_by(self, time:int):
+        self._take_mean()
         self.qs+= " GROUP BY time(" + str(time) + "ms)"
         return self.qs
+
+    def _take_mean(self):
+        if "mean" in self.qlist[1]:
+            return
+        else:
+            self.qlist[1] = "mean(" + self.qlist[1] + ")"
+            self.qs = " ".join(self.qlist)
+        
 
             
 
@@ -78,3 +76,8 @@ if __name__ == '__main__':
     tr = test.get_time_range()
     print(test.qs)
     print(tr)
+    print(test.se)
+    print(test.fr)
+    print(test.wh)
+    print(test.gb)
+    
