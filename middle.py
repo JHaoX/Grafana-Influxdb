@@ -7,12 +7,13 @@ import requests
 import gzip
 import json
 import math
+import timeit
 
 
 class RequestHandler(BaseHTTPRequestHandler):
     
     def do_GET(self):
-        
+        doGet_start = timeit.default_timer()
         request_path = self.path
         
         print("\n----- Request Start ----->\n")
@@ -22,11 +23,17 @@ class RequestHandler(BaseHTTPRequestHandler):
         print("sent query to DB")
         
         influx_url = "http://localhost:8086"+request_path
+        print(influx_url)
 
 ##        influx_url = "http://localhost:8086/query?db=test&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329620000ms"
         
         print("----received data END")
+
+        start = timeit.default_timer()
         r = requests.get(influx_url)
+        stop = timeit.default_timer()
+        print('Query Time: ', stop - start) 
+        
 
         ## COUNT THE DATA
         q = request_path.split('+')
@@ -40,16 +47,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 
         print("----received data")
         print("r.header")
-        print(r.headers)
-        print()
-##        print("r.content")
-##        print(r.content)
-##       
+        print(r.headers)      
         print()
         json_dict = json.loads(r.content)
         print("####################")
-        #print("data")
-        #print(json_dict["results"][0]["series"][0]["values"])
         
         data = json_dict["results"][0]["series"][0]["values"]
         
@@ -58,13 +59,15 @@ class RequestHandler(BaseHTTPRequestHandler):
         for key, value in r.headers.items():
             self.send_header(key,value)
         self.end_headers()
-        
-        if count <= 100:
+
+
+        max_point = 2000
+        if count <= max_point:
             res = r.content
             gres = gzip.compress(res)
  
         else:
-            batchsize = math.floor(count/100)
+            batchsize = math.floor(count/max_point)
             newlist = []
             for i in range(0,len(data),batchsize):
                 newlist.append(data[i])
@@ -78,19 +81,17 @@ class RequestHandler(BaseHTTPRequestHandler):
                 
             gres = gzip.compress(byte_dict)
 
-        self.wfile.write(gres)
-            
-                
-                
-            
+        self.wfile.write(gres)           
         print("----received data END")
+        doGet_end = timeit.default_timer()
+        print("doGet Time: ",doGet_end-doGet_start)
+        
 
 
+
         
-    def do_POST(self):
-        
-        request_path = self.path
-        
+    def do_POST(self):       
+        request_path = self.path       
         print("\n----- Request Start ----->\n")
         print("Request path:", request_path)
         
