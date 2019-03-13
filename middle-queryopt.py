@@ -151,7 +151,8 @@ class RequestHandler(BaseHTTPRequestHandler):
     do_DELETE = do_GET
         
 def main():
-    port = 8910
+    #port = 8910
+    port = 8080
     print('Listening on localhost:%s' % port)
     server = HTTPServer(('', port), RequestHandler)
     server.serve_forever()

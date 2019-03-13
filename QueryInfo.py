@@ -12,7 +12,7 @@ class QueryInfo:
         self.fr = []
         self.gb = []
         self.other_info = []
-##        self._parse()
+        self._parse()
 
     def _parse(self):
         print(self.qlist)
@@ -23,24 +23,23 @@ class QueryInfo:
             while(self.qlist[i] != "from"):
                 self.se.append(self.qlist[i])
                 i+=1
-            print(self.se)
         if self.qlist[i] == "from":
             i+=1
             while(self.qlist[i] != "where"):
                 self.fr.append(self.qlist[i])
                 i+=1
-            print(self.fr)
+        print(i)
         if self.qlist[i] == "where":
             i+=1
-            print(i)
-            while(self.qlist[i] != "GROUP" and i < qlist_len):
+            print(self.qlist[i])
+            while(i < qlist_len and self.qlist[i] != "group"):
                 self.wh.append(self.qlist[i])
                 i+=1
-            print(self.wh)
-        if self.qlist[i] == "GROUP":
+        if i < qlist_len and self.qlist[i] == "group":
             i += 2 # group by
             while(i < qlist_len):
                 self.gb.append(self.qlist[i])
+                i+=1
         
 
     def get_time_range(self):
