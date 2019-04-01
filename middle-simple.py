@@ -1,4 +1,4 @@
-
+# forwarding the query and return it to the grafana
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from optparse import OptionParser
 import requests
@@ -14,15 +14,15 @@ class RequestHandler(BaseHTTPRequestHandler):
         doGet_start = timeit.default_timer()
         request_path = self.path
         
-        print("\n----- Request Start ----->\n")
-        print("Request path:", request_path)
-        print("Request headers:", self.headers)
-        print("<----- Request End -----\n")
-        print("sent query to DB")
+##        print("\n----- Request Start ----->\n")
+##        print("Request path:", request_path)
+##        print("Request headers:", self.headers)
+##        print("<----- Request End -----\n")
+##        print("sent query to DB")
         
         influx_url = "http://localhost:8086"+request_path
-        print(influx_url)        
-        print("----received data END")
+##        print(influx_url)        
+##        print("----received data END")
 
         start = timeit.default_timer()
         r = requests.get(influx_url)
@@ -30,10 +30,10 @@ class RequestHandler(BaseHTTPRequestHandler):
         print('Query Time: ', stop - start) 
 
 
-        print("----received data")
-        print("r.header")
-        print(r.headers)      
-        print("####################")
+##        print("----received data")
+##        print("r.header")
+##        print(r.headers)      
+##        print("####################")
         
         self.send_response(200)
         for key, value in r.headers.items():
@@ -43,7 +43,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         res = r.content
         gres = gzip.compress(res)
         self.wfile.write(gres)           
-        print("----received data END")
+##        print("----received data END")
         doGet_end = timeit.default_timer()
         print("doGet Time: ",doGet_end-doGet_start)
         

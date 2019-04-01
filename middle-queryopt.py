@@ -16,10 +16,10 @@ class RequestHandler(BaseHTTPRequestHandler):
         
         request_path = self.path
         
-        print("\n----- Request Start ----->\n")
-        print("Request path:", request_path)
-        print("Request headers:", self.headers)
-        print("<----- Request End -----\n")
+##        print("\n----- Request Start ----->\n")
+##        print("Request path:", request_path)
+##        print("Request headers:", self.headers)
+##        print("<----- Request End -----\n")
         
         influx_url = "http://localhost:8086"+request_path
         urlquery = up.urlparse(influx_url).query
@@ -35,7 +35,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         jdict = json.loads(count_query.content)
         count = jdict["results"][0]["series"][0]["values"][0][1]
 
-        print("COUNT", jdict["results"][0]["series"][0]["values"][0][1])
+##        print("COUNT", jdict["results"][0]["series"][0]["values"][0][1])
 
 
         max_point = 2000
@@ -57,8 +57,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             parturl = up.urlencode(tuple_list)
             new_url = "http://localhost:8086/query?"+parturl
-            print("URL MODIFIED, NEW URL IS : ")
-            print(new_url)
+##            print("URL MODIFIED, NEW URL IS : ")
+##            print(new_url)
 ##            end_index = influx_url.find("q=")+2
 ##            new_query = influx_url[:end_index]+q_url
             influx_url = new_url
@@ -70,16 +70,16 @@ class RequestHandler(BaseHTTPRequestHandler):
         print('Query Time: ', stop - start) 
  
         
-        print("----received data")
-        print("r.header")
-        print(r.headers)
-        print()
+##        print("----received data")
+##        print("r.header")
+##        print(r.headers)
+##        print()
         
         json_dict = json.loads(r.content)
-        print("####################")
+##        print("####################")
         
         data = json_dict["results"][0]["series"][0]["values"]
-        print("LENGTH OF DATA RECEIVED ",len(data))
+##        print("LENGTH OF DATA RECEIVED ",len(data))
         
 
         self.send_response(200)
@@ -91,7 +91,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         gres = gzip.compress(res)
         self.wfile.write(gres)               
             
-        print("----received data END")
+##        print("----received data END")
         doGet_end = timeit.default_timer()
         print("doGet Time: ",doGet_end-doGet_start)
         
