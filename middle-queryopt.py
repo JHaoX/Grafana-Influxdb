@@ -48,10 +48,11 @@ class RequestHandler(BaseHTTPRequestHandler):
             upperlimit = query_info.get_time_range()[1]
             groupsize = math.floor((upperlimit-lowerlimit)/max_point)
 
-            new_query = query_info.add_group_by(groupsize)
+ #           new_query = query_info.add_group_by(groupsize)
+            new_query = query_info.change_to_sample(max_point)
             print("NEW QUERY:")
             print(new_query)
-
+            
             new_tuple =("q",new_query)
             tuple_list[-1] = new_tuple
 
@@ -70,14 +71,16 @@ class RequestHandler(BaseHTTPRequestHandler):
         print('Query Time: ', stop - start) 
  
         
-##        print("----received data")
+##        print("----received data")-precision rfc3339
+
 ##        print("r.header")
 ##        print(r.headers)
 ##        print()
         
         json_dict = json.loads(r.content)
-##        print("####################")
-        
+        print("####################")
+
+        #print(json_dict)
         data = json_dict["results"][0]["series"][0]["values"]
 ##        print("LENGTH OF DATA RECEIVED ",len(data))
         

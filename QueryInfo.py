@@ -60,7 +60,8 @@ class QueryInfo:
     def change_to_sample(self, num:int):
         self.se[0] = "sample(*,{})".format(num)
         self.qs = "SELECT " + self.se[0] + " FROM " + self.fr[0] + " WHERE " + ' '.join(self.wh)
-
+        return self.qs
+    
     def _take_mean(self):
         if "mean" in self.qlist[1]:
             return
