@@ -58,7 +58,7 @@ class QueryInfo:
         return self.qs
 
     def change_to_sample(self, num:int):
-        self.se[0] = "sample(*,{})".format(num)
+        self.se[0] = "sample({},{})".format(self.se[0],num)
         self.qs = "SELECT " + self.se[0] + " FROM " + self.fr[0] + " WHERE " + ' '.join(self.wh)
         return self.qs
     
