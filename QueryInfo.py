@@ -4,14 +4,14 @@ class QueryInfo:
 ##          FROM "h2o_temperature"
 ##          WHERE time >= 1546372062774ms and time <= 1547689662774ms
 ##          GROUP BY time(1h) fill(null)
-        self.qs = query
+        self.qs = query  #query string
         self.qlist = query.lower().split()
         self.time_range = [0,0]
-        self.se = []
-        self.wh = []
-        self.fr = []
-        self.gb = []
-        self.other_info = []
+        self.se = []  #select
+        self.wh = []  #where
+        self.fr = []  #from
+        self.gb = []  #group by
+        self.other_info = [] 
         self._parse()
 
     def _parse(self):
@@ -57,6 +57,10 @@ class QueryInfo:
         self.qs+= " GROUP BY time(" + str(time) + "ms)"
         return self.qs
 
+    def change_to_sample(self, num:int):
+        self.se[0] = "sample(*,{})".format(num)
+        self.qs = "SELECT " + self.se[0] + " FROM " + self.fr[0] + " WHERE " + ' '.join(self.wh)
+
     def _take_mean(self):
         if "mean" in self.qlist[1]:
             return
@@ -69,14 +73,9 @@ class QueryInfo:
 
 if __name__ == '__main__':
     print("____test____")
-    qs = 'SELECT mean("degrees") FROM "h2o_temperature" WHERE time >= 1546372062774ms and time <= 1547689662774ms GROUP BY time(1h) fill(null)'
+    qs = 'SELECT "degrees" FROM "h2o_temperature" WHERE time >= 1546372062774ms and time <= 1547689662774ms'
     test = QueryInfo(qs)
-    test.add_group_by(1000)
+    test.change_to_sample(2000)
     tr = test.get_time_range()
     print(test.qs)
-    print(tr)
-    print(test.se)
-    print(test.fr)
-    print(test.wh)
-    print(test.gb)
     

@@ -16,18 +16,18 @@ class RequestHandler(BaseHTTPRequestHandler):
         doGet_start = timeit.default_timer()
         request_path = self.path
         
-        print("\n----- Request Start ----->\n")
-        print("Request path:", request_path)
-        print("Request headers:", self.headers)
-        print("<----- Request End -----\n")
-        print("sent query to DB")
+##        print("\n----- Request Start ----->\n")
+##        print("Request path:", request_path)
+##        print("Request headers:", self.headers)
+##        print("<----- Request End -----\n")
+##        print("sent query to DB")
         
         influx_url = "http://localhost:8086"+request_path
-        print(influx_url)
+##        print(influx_url)
 
 ##        influx_url = "http://localhost:8086/query?db=test&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329620000ms"
         
-        print("----received data END")
+##        print("----received data END")
 
         start = timeit.default_timer()
         r = requests.get(influx_url)
@@ -43,14 +43,14 @@ class RequestHandler(BaseHTTPRequestHandler):
         count_query = requests.get(count_url)
         jdict = json.loads(count_query.content)
         count = jdict["results"][0]["series"][0]["values"][0][1]
-        print("COUNT", jdict["results"][0]["series"][0]["values"][0][1])
+##        print("COUNT", jdict["results"][0]["series"][0]["values"][0][1])
 
-        print("----received data")
-        print("r.header")
-        print(r.headers)      
-        print()
+##        print("----received data")
+##        print("r.header")
+##        print(r.headers)      
+##        print()
         json_dict = json.loads(r.content)
-        print("####################")
+##        print("####################")
         
         data = json_dict["results"][0]["series"][0]["values"]
         
@@ -72,7 +72,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             for i in range(0,len(data),batchsize):
                 newlist.append(data[i])
 
-            print("SIZE OF THE NEW LIST ",len(newlist))
+##            print("SIZE OF THE NEW LIST ",len(newlist))
 
             json_dict["results"][0]["series"][0]["values"] = newlist
 
@@ -82,7 +82,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             gres = gzip.compress(byte_dict)
 
         self.wfile.write(gres)           
-        print("----received data END")
+##        print("----received data END")
         doGet_end = timeit.default_timer()
         print("doGet Time: ",doGet_end-doGet_start)
         
