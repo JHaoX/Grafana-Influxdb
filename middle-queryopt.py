@@ -17,7 +17,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         request_path = self.path
         
 ##        print("\n----- Request Start ----->\n")
-##        print("Request path:", request_path)
+        print("Request path:", request_path)
 ##        print("Request headers:", self.headers)
 ##        print("<----- Request End -----\n")
         
@@ -31,7 +31,10 @@ class RequestHandler(BaseHTTPRequestHandler):
         q[1] = ('count%28%2A%29')
         count = '+'.join(q)
         count_url = "http://localhost:8086"+count
+        count_start = timeit.default_timer()
         count_query = requests.get(count_url)
+        count_end = timeit.default_timer()
+        print("count query time:", count_end - count_start)
         jdict = json.loads(count_query.content)
         count = jdict["results"][0]["series"][0]["values"][0][1]
 
@@ -48,7 +51,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             upperlimit = query_info.get_time_range()[1]
             groupsize = math.floor((upperlimit-lowerlimit)/max_point)
 
- #           new_query = query_info.add_group_by(groupsize)
+##            new_query = query_info.add_group_by(groupsize)
             new_query = query_info.change_to_sample(max_point)
             print("NEW QUERY:")
             print(new_query)
