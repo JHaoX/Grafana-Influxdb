@@ -22,6 +22,10 @@ class RequestHandler(BaseHTTPRequestHandler):
 ##        print("<----- Request End -----\n")
         
         influx_url = "http://localhost:8086"+request_path
+
+
+        print("INFLUX URL")
+        print(influx_url)
         urlquery = up.urlparse(influx_url).query
         tuple_list = up.parse_qsl(urlquery)
         query_string = tuple_list[-1][1]
@@ -66,6 +70,9 @@ class RequestHandler(BaseHTTPRequestHandler):
 ##            end_index = influx_url.find("q=")+2
 ##            new_query = influx_url[:end_index]+q_url
             influx_url = new_url
+
+        print("SAMPLED INFLUX URL")
+        print(influx_url)
 
         start = timeit.default_timer()
         r = requests.get(influx_url)
