@@ -9,7 +9,7 @@ from tslearn.utils import to_time_series
 from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 from tslearn.preprocessing import TimeSeriesResampler
 
-dbname = "NOAA_water_database"
+dbname = "test_quarter"
 
 def main():
 # fetch original data
@@ -21,7 +21,6 @@ def main():
     data = json_dict["results"][0]["series"][0]["values"]
     time_interval = data[1][0] - data[0][0] # consistant time interval
     print("time interval: ", time_interval)
-    print(data)
    
     lst2 = [item[1] for item in data]
     n_segments = len(lst2)
@@ -32,7 +31,7 @@ def main():
     
     sdb = scalar.fit_transform(lst2)
     sax_data = sax.transform(sdb)
-    print(sax_data.shape)
+    print("original data")
     print(sax_data)
 
 # generate sample data
@@ -43,7 +42,7 @@ def main():
     r2 = requests.get(sample_url)
     json_dict2 = json.loads(r2.content)
     sampled_data = json_dict2["results"][0]["series"][0]["values"] # [[time, value], ...]
-    print(sampled_data)
+    
    
     sample = [item[1] for item in sampled_data] #[value,...]
     print(sample)
@@ -67,8 +66,14 @@ def main():
         
         sample_fit.append([current_x, slope*current_x+intersection])
         current_x += time_interval #1000ms
+    
+    print("sample_fit")
+    print(sample_fit)  #sampled data
 
-    print(sample_fit)
+    print("distance")
+#    print(sax.distance(sax_data[0], sample_fit[0]))
+
+    
     
 
             
