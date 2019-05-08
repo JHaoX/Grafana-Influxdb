@@ -9,12 +9,17 @@ from tslearn.utils import to_time_series
 from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 from tslearn.preprocessing import TimeSeriesResampler
 
-dbname = "test_quarter"
+dbname = "NOAA_water_database"
 
 def main():
 # fetch original data
+##    influx_url = "http://localhost:8086/query?db=" + dbname + \
+##                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329650000ms"
+
     influx_url = "http://localhost:8086/query?db=" + dbname + \
-                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329650000ms"
+                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1442612520000ms"
+
+    
     r = requests.get(influx_url)
     json_dict = json.loads(r.content)
 
@@ -31,21 +36,35 @@ def main():
     
     sdb = scalar.fit_transform(lst2)
     sax_data = sax.transform(sdb)
+ 
+    
     print("original data")
-    print(sax_data)
+#    print(sax_data)
+    s3 = sax.fit_transform(sax_data)
+    print("s3")
+ #   print(s3)
 
 # generate sample data
-    data_size = 10
-    sample_url = "http://localhost:8086/query?db="+dbname+\
-                 "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(data_size) +\
-                 "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329650000ms"
+    sample_size = 1000
+##    sample_url = "http://localhost:8086/query?db="+dbname+\
+##                 "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
+##                 "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329650000ms"
+
+    sample_url = "http://localhost:8086/query?db=" + dbname + \
+                 "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
+                 "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1442612520000ms"
+
+    
     r2 = requests.get(sample_url)
     json_dict2 = json.loads(r2.content)
     sampled_data = json_dict2["results"][0]["series"][0]["values"] # [[time, value], ...]
-    
+
+    print("sample length")
+    print(len(sampled_data))
    
     sample = [item[1] for item in sampled_data] #[value,...]
-    print(sample)
+   # print(sample)
+    
 
     start_x = data[0][0]
     end_x = data[-1][0]
@@ -57,10 +76,11 @@ def main():
     intersection = sampled_data[current_loc][1]-slope*sampled_data[current_loc][0]
 
     sample_fit = []
+    
     while current_x <= end_x:
         if current_x>=sampled_data[current_loc+1][0] and current_loc+1 < len(sampled_data)-1:
             current_loc+=1
-            slope = (sampled_data[current_loc][1]-sampled_data[current_loc+1][1]) \
+            slope = (sampled_data[current_loc] [1]-sampled_data[current_loc+1][1]) \
                     /(sampled_data[current_loc][0] - sampled_data[current_loc+1][0])
             intersection = sampled_data[current_loc][1]-slope*sampled_data[current_loc][0]
         
@@ -68,13 +88,28 @@ def main():
         current_x += time_interval #1000ms
     
     print("sample_fit")
-    print(sample_fit)  #sampled data
+ #   print(sample_fit)  #sampled data
+
+    sample_fit_extract = [item[1] for item in sample_fit]
+    fit_sample_data = scalar.fit_transform(sample_fit_extract)
+ 
+    sax_sample_data = sax.transform(fit_sample_data)
+    s4 = sax.fit_transform(sax_sample_data)
+    print("s4")
+    #print(s4)
+    print("sax sample fit data")
+    #print(sax_sample_data)
+    
+
+    
+    
+    
 
     print("distance")
-#    print(sax.distance(sax_data[0], sample_fit[0]))
+    #print(sax.distance_sax(sax_data[0], sax_sample_data[0]))
+    
+    print(sax.distance_sax(s3[0], s4[0]))
 
-    
-    
 
             
             
