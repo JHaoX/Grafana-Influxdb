@@ -35,9 +35,11 @@ def main():
     print(sax_data.shape)
     print(sax_data)
 
-# generate sample data 
+# generate sample data
+    data_size = 10
     sample_url = "http://localhost:8086/query?db="+dbname+\
-                 "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C10%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329650000ms"
+                 "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(data_size) +\
+                 "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329650000ms"
     r2 = requests.get(sample_url)
     json_dict2 = json.loads(r2.content)
     sampled_data = json_dict2["results"][0]["series"][0]["values"] # [[time, value], ...]
