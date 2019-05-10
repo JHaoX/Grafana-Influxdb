@@ -2,6 +2,7 @@ import requests
 import json
 import numpy
 import matplotlib.pyplot as plt
+import math
 
 from tslearn.piecewise import SymbolicAggregateApproximation
 from tslearn.utils import to_time_series
@@ -9,17 +10,19 @@ from tslearn.utils import to_time_series
 from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 from tslearn.preprocessing import TimeSeriesResampler
 
-dbname = "NOAA_water_database"
+
+##dbname = "NOAA_water_database"
+dbname = "test_quarter"
 
 def main():
 # fetch original data
     #for test_quarter db
-##    influx_url = "http://localhost:8086/query?db=" + dbname + \
-##                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329650000ms"
+    influx_url = "http://localhost:8086/query?db=" + dbname + \
+                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329900000ms"
 
     #FOR NOAA DB
-    influx_url = "http://localhost:8086/query?db=" + dbname + \
-                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1439992520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
+##    influx_url = "http://localhost:8086/query?db=" + dbname + \
+##                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1439992520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
     
     r = requests.get(influx_url)
     json_dict = json.loads(r.content)
@@ -47,14 +50,14 @@ def main():
  #   print(s3)
 
 # generate sample data
-    sample_size = 100
-##    sample_url = "http://localhost:8086/query?db="+dbname+\
-##                 "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
-##                 "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329650000ms"
-
-    sample_url = "http://localhost:8086/query?db=" + dbname + \
+    sample_size = 50
+    sample_url = "http://localhost:8086/query?db="+dbname+\
                  "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
-                 "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1442612520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
+                 "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329900000ms"
+
+##    sample_url = "http://localhost:8086/query?db=" + dbname + \
+##                 "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
+##                 "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1442612520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
 
     
     r2 = requests.get(sample_url)
@@ -101,7 +104,12 @@ def main():
     sax_sample_data = sax.transform(fit_sample_data)
     s4 = sax.fit_transform(sax_sample_data)
     print("distance")
-    print(sax.distance_sax(s3[0], s4[0]))       
+    dist = sax.distance_sax(s3[0], s4[0])
+    print(dist)
+    print("normalized distance")
+    print(dist/math.sqrt(sample_size))
+    
+    
 
 ##    sdb2 = scalar.fit_transform(TimeSeriesResampler(sz=len(lst2)).fit_transform(sample))
 ##    sdb2 = scalar.fit_transform(sample)
@@ -117,8 +125,9 @@ def main():
     plt.subplot(2,2,1)
     x = [item[0] for item in sample_fit]
     y = [item[1] for item in sample_fit]
-    plt.plot(x,y,'bo')
-    plt.title("filled data")
+    plt.plot(x,y,'bo-')
+    plt.ylim(top = 82, bottom = 58)
+    plt.title("sample data (linear fill)")
 
     plt.subplot(2,2,2)
 ##    plt.plot(sdb2[0].ravel(),'bo')
