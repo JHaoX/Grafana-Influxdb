@@ -1,2 +1,5 @@
 # Grafana-Influxdb
-Making middleware between Grafana and Influxdb to have a better performance. 
+A middleware between Grafana and Influxdb that has the following functions:  
+- simple forwarding
+- optimize queries, accelerate the frontend rendering speed.
+- intelligently decide the sample size
