@@ -6,9 +6,11 @@
 import random
 import math
 
+db name 
+
 print("# DDL")
 
-print("CREATE DATABASE sinedb")
+print("CREATE DATABASE sinedb") 
 
 print("# DML")
 
