@@ -12,19 +12,22 @@ from tslearn.preprocessing import TimeSeriesResampler
 
 
 ##dbname = "NOAA_water_database"
-dbname = "test_quarter"
-##dbname = "sinedb"
+##dbname = "test_quarter"
+dbname = "test3" # sin pattern
 
 def main():
 # fetch original data
     #for test_quarter db
-    influx_url = "http://localhost:8086/query?db=" + dbname + \
-                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329900000ms"
+##    influx_url = "http://localhost:8086/query?db=" + dbname + \
+##                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329900000ms"
 
     #FOR NOAA DB
 ##    influx_url = "http://localhost:8086/query?db=" + dbname + \
 ##                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1439992520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
-    
+    # For test3
+    influx_url = "http://localhost:8086/query?db=" + dbname + \
+                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546355705400ms+and+time+%3C%3D+1548969305400ms"
+
     r = requests.get(influx_url)
     json_dict = json.loads(r.content)
 
@@ -42,9 +45,14 @@ def main():
 
 # generate sample data
     sample_size = 50
+##    sample_url = "http://localhost:8086/query?db="+dbname+\
+##                 "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
+##                 "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329900000ms"
+# test3 sample (sin pattern)
     sample_url = "http://localhost:8086/query?db="+dbname+\
-                 "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
-                 "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329900000ms"
+             "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
+             "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546355705400ms+and+time+%3C%3D+1548969305400ms"
+
 
 ##    sample_url = "http://localhost:8086/query?db=" + dbname + \
 ##                 "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
