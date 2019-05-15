@@ -21,6 +21,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 ##        print("sent query to DB")
         
         influx_url = "http://localhost:8086"+request_path
+        print(influx_url)
 ##        print(influx_url)        
 ##        print("----received data END")
 
