@@ -41,6 +41,13 @@ def plot(sample_fit, sampled_data, lst2):
     plt.tight_layout()
     plt.show()
 
+def plotdist(ratiolist,distlist):
+    plt.figure()
+    plt.plot(ratiolist,distlist,'bo-')
+    plt.title("distance w.r.t. ratio")
+    plt.show()
+    
+
 def main():
     # fetch original data
     #for test_quarter db
@@ -53,36 +60,43 @@ def main():
                  "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1439992520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
 
     #h2o_feet: obvious pattern
-    influx_url = "http://localhost:8086/query?db=" + dbname + \
-                    "&epoch=ms&q=SELECT+%22water_level%22+FROM+%22h2o_feet%22+WHERE+time+%3E%3D+1440658277944ms+and+time+%3C%3D+1441435694328ms"
-    
+##    influx_url = "http://localhost:8086/query?db=" + dbname + \
+##                    "&epoch=ms&q=SELECT+%22water_level%22+FROM+%22h2o_feet%22+WHERE+time+%3E%3D+1440658277944ms+and+time+%3C%3D+1441435694328ms"
+##    
     #For test3
 ##    influx_url = "http://localhost:8086/query?db=" + dbname + \
 ##                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546355705400ms+and+time+%3C%3D+1548969305400ms"
 
+    
     r = requests.get(influx_url)
     json_dict = json.loads(r.content)
 
     data = json_dict["results"][0]["series"][0]["values"]
     print(data[0:5])
     
- #   time_interval = data[1][0] - data[0][0] # consistant time interval
-
-    #just for NOAA h2o_feet
-    time_interval = data[2][0] - data[0][0]
+    time_interval = data[1][0] - data[0][0] # consistant time interval
+##    #NOTE:just for NOAA h2o_feet
+##    time_interval = data[2][0] - data[0][0]
     print("time interval:", time_interval)
    
     lst2 = [item[1] for item in data]
     n_segments = len(lst2)
 
+    print(max(lst2),min(lst2))
+    
+
     original_data_size = len(lst2)
     print("original data size:", original_data_size)
-    alphabet_size_avg = 20
+    
+    alphabet_size_avg = math.ceil(max(lst2)-min(lst2))
+    print("alphabet size avg:", alphabet_size_avg)
 
     
-    ratiolist = [0.025,0.05,0.1]
+    ratiolist = [0.025,0.05,0.1,0.15,0.2,0.3,0.4,0.5,0.6]
+    distlist = []
     
     for ratio in ratiolist:
+        print()
         print("ratio:",ratio)
             
         #generate sample data
@@ -109,7 +123,6 @@ def main():
         r2 = requests.get(sample_url)
         json_dict2 = json.loads(r2.content)
         sampled_data = json_dict2["results"][0]["series"][0]["values"] # [[time, value], ...]
-        print("sample size check:",len(sampled_data))
         
         sample = [item[1] for item in sampled_data] #[value,...]
 
@@ -127,11 +140,18 @@ def main():
         end_sample_x = sampled_data[-1][0]
 
         while current_x <= end_sample_x:
-            if current_x >= sampled_data[current_loc+1][0] and current_loc+1 < len(sampled_data)-2:  ##NOTE: -2 !! CHANGE TO -1 LATER
+            if current_x >= sampled_data[current_loc+1][0] and current_loc+1 < len(sampled_data)-1:  ##NOTE: -2 !! CHANGE TO -1 LATER
                 current_loc+=1
                 ##NOTE: +2 was just for h2o_feet
-                slope = (sampled_data[current_loc] [1]-sampled_data[current_loc+2][1]) \
-                        /(sampled_data[current_loc][0] - sampled_data[current_loc+2][0])
+                if (sampled_data[current_loc][0] - sampled_data[current_loc+1][0]) == 0:
+    
+                    slope = (sampled_data[current_loc] [1]-sampled_data[current_loc+1][1]) \
+                            /(sampled_data[current_loc][0] - sampled_data[current_loc+2][0])
+                else:
+                    slope = (sampled_data[current_loc] [1]-sampled_data[current_loc+1][1]) \
+                            /(sampled_data[current_loc][0] - sampled_data[current_loc+1][0])
+
+                    
                 intersection = sampled_data[current_loc][1] - slope*sampled_data[current_loc][0]
             
             
@@ -165,9 +185,12 @@ def main():
         
         dist = sax.distance_sax(s3[0], s4[0])
         print("distance:", dist)
-        norm_dist = dist/chopped_len
-        print("normalized distance:", norm_dist)
+        norm_dist = 1000*dist/chopped_len
+        distlist.append(norm_dist)
+        print("normalized distance: {:.4f}".format(norm_dist))
 
+    plotdist(ratiolist,distlist)
+##        plot(sample_fit, sampled_data, lst2)
     #PLOT the three dataset
 ##    plot(sample_fit, sampled_data, lst2)
     
