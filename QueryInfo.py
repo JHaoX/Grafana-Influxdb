@@ -1,3 +1,7 @@
+## A little parser for query
+## The current solution does not work well with all the query.
+## May use flex&bison to make a better parser.
+
 class QueryInfo:
     def __init__(self, query:str):
 ##  query:  SELECT mean("degrees")
@@ -15,7 +19,6 @@ class QueryInfo:
         self._parse()
 
     def _parse(self):
-        print(self.qlist)
         i = 0
         qlist_len = len(self.qlist)
         if self.qlist[i] == "select":
@@ -28,10 +31,8 @@ class QueryInfo:
             while(self.qlist[i] != "where"):
                 self.fr.append(self.qlist[i])
                 i+=1
-        print(i)
         if self.qlist[i] == "where":
             i+=1
-            print(self.qlist[i])
             while(i < qlist_len and self.qlist[i] != "group"):
                 self.wh.append(self.qlist[i])
                 i+=1

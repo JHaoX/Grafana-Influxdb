@@ -1,3 +1,4 @@
+## use sample() in the query to get sample data from influxdb
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from optparse import OptionParser
@@ -16,21 +17,19 @@ class RequestHandler(BaseHTTPRequestHandler):
         
         request_path = self.path
         
-##        print("\n----- Request Start ----->\n")
+        print("\n----- Request Start ----->\n")
         print("Request path:", request_path)
-##        print("Request headers:", self.headers)
-##        print("<----- Request End -----\n")
+        print("<----- Request End -----\n")
         
         influx_url = "http://localhost:8086"+request_path
 
+## sent query to influxdb
 
-        print("INFLUX URL")
-        print(influx_url)
         urlquery = up.urlparse(influx_url).query
         tuple_list = up.parse_qsl(urlquery)
         query_string = tuple_list[-1][1]
 
-        ## COUNT THE DATA
+## COUNT THE DATA by sending a query to infludb
         q = request_path.split('+')
         q[1] = ('count%28%2A%29')
         count = '+'.join(q)
@@ -42,9 +41,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         jdict = json.loads(count_query.content)
         count = jdict["results"][0]["series"][0]["values"][0][1]
 
-##        print("COUNT", jdict["results"][0]["series"][0]["values"][0][1])
-
-
+## Sample the dataset with more than 2k points
         max_point = 2000
         if count <= max_point:
             print("DIDN'T MODIFY THE QUERY")
@@ -55,58 +52,42 @@ class RequestHandler(BaseHTTPRequestHandler):
             upperlimit = query_info.get_time_range()[1]
             groupsize = math.floor((upperlimit-lowerlimit)/max_point)
 
-##            new_query = query_info.add_group_by(groupsize)
             new_query = query_info.change_to_sample(max_point)
-            print("NEW QUERY:")
-            print(new_query)
             
             new_tuple =("q",new_query)
             tuple_list[-1] = new_tuple
 
             parturl = up.urlencode(tuple_list)
             new_url = "http://localhost:8086/query?"+parturl
-##            print("URL MODIFIED, NEW URL IS : ")
-##            print(new_url)
-##            end_index = influx_url.find("q=")+2
-##            new_query = influx_url[:end_index]+q_url
             influx_url = new_url
-
-        print("SAMPLED INFLUX URL")
-        print(influx_url)
-
+            
+## Get sample data from influxdb
         start = timeit.default_timer()
-        r = requests.get(influx_url)
+        influx_resp = requests.get(influx_url)
         ## execute the query in influxdb
         stop = timeit.default_timer()
         print('Query Time: ', stop - start) 
  
         
-##        print("----received data")-precision rfc3339
-
-##        print("r.header")
-##        print(r.headers)
-##        print()
-        
-        json_dict = json.loads(r.content)
+        json_dict = json.loads(influx_resp.content)
         print("####################")
 
-        #print(json_dict)
-        data = json_dict["results"][0]["series"][0]["values"]
-##        print("LENGTH OF DATA RECEIVED ",len(data))
-        
+        data = json_dict["results"][0]["series"][0]["values"]        
 
+## Forward infludb hearder respone to frontend
         self.send_response(200)
-        for key, value in r.headers.items():
+        for key, value in influx_resp.headers.items():
             self.send_header(key,value)
         self.end_headers()
 
-        res = r.content
+## Compress the file and sent to frontend
+        res = influx_resp.content
         gres = gzip.compress(res)
         self.wfile.write(gres)               
             
 ##        print("----received data END")
         doGet_end = timeit.default_timer()
-        print("doGet Time: ",doGet_end-doGet_start)
+        print("Total time in middleware: ",doGet_end-doGet_start)
         
 
 

@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# Reflects the requests from HTTP methods GET, POST, PUT, and DELETE
+## 
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from optparse import OptionParser
@@ -20,7 +19,6 @@ class RequestHandler(BaseHTTPRequestHandler):
 ##        print("Request path:", request_path)
 ##        print("Request headers:", self.headers)
 ##        print("<----- Request End -----\n")
-##        print("sent query to DB")
         
         influx_url = "http://localhost:8086"+request_path
 ##        print(influx_url)
