@@ -56,13 +56,13 @@ def main():
 
     #FOR NOAA DB
     #h2o_temperature: no obvious pattern
-    influx_url = "http://localhost:8086/query?db=" + dbname + \
-                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1439992520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
+##    influx_url = "http://localhost:8086/query?db=" + dbname + \
+##                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1439992520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
 
     #h2o_feet: obvious pattern
-##    influx_url = "http://localhost:8086/query?db=" + dbname + \
-##                    "&epoch=ms&q=SELECT+%22water_level%22+FROM+%22h2o_feet%22+WHERE+time+%3E%3D+1440658277944ms+and+time+%3C%3D+1441435694328ms"
-##    
+    influx_url = "http://localhost:8086/query?db=" + dbname + \
+                    "&epoch=ms&q=SELECT+%22water_level%22+FROM+%22h2o_feet%22+WHERE+time+%3E%3D+1440658277944ms+and+time+%3C%3D+1441435694328ms"
+    
     #For test3
 ##    influx_url = "http://localhost:8086/query?db=" + dbname + \
 ##                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546355705400ms+and+time+%3C%3D+1548969305400ms"
@@ -74,9 +74,9 @@ def main():
     data = json_dict["results"][0]["series"][0]["values"]
     print(data[0:5])
     
-    time_interval = data[1][0] - data[0][0] # consistant time interval
+##    time_interval = data[1][0] - data[0][0] # consistant time interval
 ##    #NOTE:just for NOAA h2o_feet
-##    time_interval = data[2][0] - data[0][0]
+    time_interval = data[2][0] - data[0][0]
     print("time interval:", time_interval)
    
     lst2 = [item[1] for item in data]
@@ -113,14 +113,14 @@ def main():
     ##             "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546355705400ms+and+time+%3C%3D+1548969305400ms"
 
         #NOAA DB:h2o_temperature
-        sample_url = "http://localhost:8086/query?db=" + dbname + \
-                     "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
-                     "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1442612520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
+##        sample_url = "http://localhost:8086/query?db=" + dbname + \
+##                     "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
+##                     "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1442612520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
 
        #NOAA DB: h2o_feet
-##        sample_url = "http://localhost:8086/query?db=" + dbname + \
-##                    "&epoch=ms&q=SELECT+sample%28%22water_level%22%2C"+str(sample_size) + \
-##                    "%29+FROM+%22h2o_feet%22+WHERE+time+%3E%3D+1440658277944ms+and+time+%3C%3D+1441435694328ms"
+        sample_url = "http://localhost:8086/query?db=" + dbname + \
+                    "&epoch=ms&q=SELECT+sample%28%22water_level%22%2C"+str(sample_size) + \
+                    "%29+FROM+%22h2o_feet%22+WHERE+time+%3E%3D+1440658277944ms+and+time+%3C%3D+1441435694328ms"
         
         r2 = requests.get(sample_url)
         json_dict2 = json.loads(r2.content)
@@ -134,24 +134,24 @@ def main():
         current_x = start_x
         current_loc = 0
         
-        slope = (sampled_data[current_loc][1]-sampled_data[current_loc+1][1])\
-                /(sampled_data[current_loc][0] - sampled_data[current_loc+1][0])
+        slope = (sampled_data[current_loc][1]-sampled_data[current_loc+2][1])\
+                /(sampled_data[current_loc][0] - sampled_data[current_loc+2][0])      ##NOTE!
         intersection = sampled_data[current_loc][1]-slope*sampled_data[current_loc][0]
 
         sample_fit = []
         end_sample_x = sampled_data[-1][0]
 
         while current_x <= end_sample_x:
-            if current_x >= sampled_data[current_loc+1][0] and current_loc+1 < len(sampled_data)-1:  ##NOTE: -2 !! CHANGE TO -1 LATER
+            if current_x >= sampled_data[current_loc+1][0] and current_loc+1 < len(sampled_data)-2:  ##NOTE: -2 !! CHANGE TO -1 LATER
                 current_loc+=1
                 ##NOTE: +2 was just for h2o_feet
                 if (sampled_data[current_loc][0] - sampled_data[current_loc+1][0]) == 0:
     
                     slope = (sampled_data[current_loc] [1]-sampled_data[current_loc+1][1]) \
-                            /(sampled_data[current_loc][0] - sampled_data[current_loc+1][0])
+                            /(sampled_data[current_loc][0] - sampled_data[current_loc+2][0])
                 else:
                     slope = (sampled_data[current_loc] [1]-sampled_data[current_loc+1][1]) \
-                            /(sampled_data[current_loc][0] - sampled_data[current_loc+1][0])
+                            /(sampled_data[current_loc][0] - sampled_data[current_loc+2][0])
 
                     
                 intersection = sampled_data[current_loc][1] - slope*sampled_data[current_loc][0]
