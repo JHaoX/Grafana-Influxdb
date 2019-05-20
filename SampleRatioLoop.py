@@ -44,6 +44,7 @@ def plot(sample_fit, sampled_data, lst2):
 def plotdist(ratiolist,distlist):
     plt.figure()
     plt.plot(ratiolist,distlist,'bo-')
+    plt.ylim(bottom=0)
     plt.title("distance w.r.t. ratio, DB={}".format(dbname))
     plt.show()
     
