@@ -1,3 +1,5 @@
+# Ingest random data into influxdb
+
 from influxdb import InfluxDBClient
 from time import time,sleep
 import datetime

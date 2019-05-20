@@ -1,4 +1,4 @@
-## use sample() in the query to get sample data from influxdb
+## Use sample() in the query to get sample data from influxdb
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from optparse import OptionParser

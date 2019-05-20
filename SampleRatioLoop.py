@@ -11,9 +11,9 @@ from tslearn.preprocessing import TimeSeriesScalerMeanVariance
 from tslearn.preprocessing import TimeSeriesResampler
 
 
-dbname = "NOAA_water_database"
+##dbname = "NOAA_water_database"
 ##dbname = "test_quarter"
-#dbname = "test3" # sin pattern
+dbname = "test3" # sin pattern
 
 def plot(sample_fit, sampled_data, lst2):
     plt.figure()
@@ -56,16 +56,16 @@ def main():
 
     #FOR NOAA DB
     #h2o_temperature: no obvious pattern
-    influx_url = "http://localhost:8086/query?db=" + dbname + \
-                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1439992520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
+##    influx_url = "http://localhost:8086/query?db=" + dbname + \
+##                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1439992520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
 
     #h2o_feet: obvious pattern
 ##    influx_url = "http://localhost:8086/query?db=" + dbname + \
 ##                    "&epoch=ms&q=SELECT+%22water_level%22+FROM+%22h2o_feet%22+WHERE+time+%3E%3D+1440658277944ms+and+time+%3C%3D+1441435694328ms"
 ##    
     #For test3
-##    influx_url = "http://localhost:8086/query?db=" + dbname + \
-##                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546355705400ms+and+time+%3C%3D+1548969305400ms"
+    influx_url = "http://localhost:8086/query?db=" + dbname + \
+                 "&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546355705400ms+and+time+%3C%3D+1548969305400ms"
 
     
     r = requests.get(influx_url)
@@ -108,14 +108,14 @@ def main():
     ##                 "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
     ##                 "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329900000ms"
     # test3 sample (sin pattern)
-    ##    sample_url = "http://localhost:8086/query?db="+dbname+\
-    ##             "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
-    ##             "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546355705400ms+and+time+%3C%3D+1548969305400ms"
+        sample_url = "http://localhost:8086/query?db="+dbname+\
+                 "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
+                 "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546355705400ms+and+time+%3C%3D+1548969305400ms"
 
         #NOAA DB:h2o_temperature
-        sample_url = "http://localhost:8086/query?db=" + dbname + \
-                     "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
-                     "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1442612520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
+##        sample_url = "http://localhost:8086/query?db=" + dbname + \
+##                     "&epoch=ms&q=SELECT+sample%28%22degrees%22%2C" + str(sample_size) +\
+##                     "%29+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1439856000000ms+and+time+%3C%3D+1442612520000ms+and%28%22location%22+%3D+%27santa_monica%27%29"
 
        #NOAA DB: h2o_feet
 ##        sample_url = "http://localhost:8086/query?db=" + dbname + \

@@ -1,4 +1,5 @@
-## 
+## Get all the data point requested from influxdb and sent part of 
+## data to the frontend. 
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from optparse import OptionParser
@@ -21,19 +22,16 @@ class RequestHandler(BaseHTTPRequestHandler):
 ##        print("<----- Request End -----\n")
         
         influx_url = "http://localhost:8086"+request_path
-##        print(influx_url)
-
-##        influx_url = "http://localhost:8086/query?db=test&epoch=ms&q=SELECT+%22degrees%22+FROM+%22h2o_temperature%22+WHERE+time+%3E%3D+1546329600000ms+and+time+%3C%3D+1546329620000ms"
-        
 ##        print("----received data END")
 
+## Sent the query from frontend to the backend.
         start = timeit.default_timer()
         r = requests.get(influx_url)
         stop = timeit.default_timer()
         print('Query Time: ', stop - start) 
         
 
-        ## COUNT THE DATA
+## COUNT THE DATA with another query (quicker than count locally)
         q = request_path.split('+')
         q[1] = ('count%28%2A%29')
         count = '+'.join(q)
@@ -46,19 +44,17 @@ class RequestHandler(BaseHTTPRequestHandler):
 ##        print("----received data")
 ##        print("r.header")
 ##        print(r.headers)      
-##        print()
-        json_dict = json.loads(r.content)
-##        print("####################")
-        
+        json_dict = json.loads(r.content)        
         data = json_dict["results"][0]["series"][0]["values"]
         
-
+## Sent the header
         self.send_response(200)
         for key, value in r.headers.items():
             self.send_header(key,value)
         self.end_headers()
 
-
+## Check if the size of data hit the limit. If so, extract data evenly from
+##        each time interval. Else, do nothing on the data.
         max_point = 2000
         if count <= max_point:
             res = r.content
@@ -84,9 +80,6 @@ class RequestHandler(BaseHTTPRequestHandler):
         doGet_end = timeit.default_timer()
         print("doGet Time: ",doGet_end-doGet_start)
         
-
-
-
         
     def do_POST(self):       
         request_path = self.path       
@@ -116,6 +109,7 @@ def main():
 
         
 if __name__ == "__main__":
+## command line parser
     parser = OptionParser()
     parser.usage = ("Creates an http-server that will echo out any GET or POST parameters\n"
                     "Run:\n\n"
